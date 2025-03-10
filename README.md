@@ -23,3 +23,9 @@ terraform apply
 ```
 terraform destroy
 ```
+
+- To validate the configuration:
+
+```
+terraform validate
+```
