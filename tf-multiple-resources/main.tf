@@ -48,17 +48,31 @@ resource "aws_subnet" "main" {
 #   }
 # }
 
-# creating 2 instances with different ami 
+# # creating 2 instances with different ami 
+# resource "aws_instance" "main" {
+#   count = length(var.ec2_config) #runs 2 times
+
+#   ami = var.ec2_config[count.index].ami
+#   instance_type = var.ec2_config[count.index].instance_type
+
+#   subnet_id = element(aws_subnet.main[*].id, count.index%length(aws_subnet.main))
+
+#   tags = {
+#     Name = "${local.project}-instance-${count.index}"
+#    }
+# }
+
+# creating 2 instances with different ami  using for each
 resource "aws_instance" "main" {
-  count = length(var.ec2_config) #runs 2 times
+  for_each = var.ec2_map
 
-  ami = var.ec2_config[count.index].ami
-  instance_type = var.ec2_config[count.index].instance_type
+  ami = each.value.ami
+  instance_type = each.value.instance_type
 
-  subnet_id = element(aws_subnet.main[*].id, count.index%length(aws_subnet.main))
+  subnet_id = element(aws_subnet.main[*].id, index(keys(var.ec2_map), each.key) % length(aws_subnet.main))
 
   tags = {
-    Name = "${local.project}-instance-${count.index}"
+    Name = "${local.project}-instance-${each.key}"
    }
 }
 
